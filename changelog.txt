@@ -1,0 +1,19 @@
+0.0.9
+- Clean up code and documentation.
+- prepare everything for first bump into git repo.
+0.0.8
+- Added fanart and icon.
+0.0.7
+- Added Search option for videos.
+0.0.6
+- Added internationalization support.
+0.0.5
+- Added support for Dailymotion, archive.org and kickstarter videos.
+0.0.4
+- Updated parser for page navigation.
+0.0.3
+- Suported videos for Youtube and Vimeo.
+0.0.2
+- added suport for info tags in videos.
+0.0.1
+- First Try.
