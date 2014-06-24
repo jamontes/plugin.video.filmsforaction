@@ -1,3 +1,7 @@
+0.1.0
+- Remove the Vimeo add-on dependency due to a problem found running on Gotham.
+- Made custom Vimeo scraper to support the Viemo videos on Gotham.
+- Added forum thread to addon and README files.
 0.0.9
 - Clean up code and documentation.
 - prepare everything for first bump into git repo.

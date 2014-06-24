@@ -128,8 +128,14 @@ def get_playable_url(url):
 
 
 def get_playable_vimeo_url(video_id):
-    """This function returns the URL path to call the Vimeo add-on with the video_id retrieved."""
-    return 'plugin://plugin.video.vimeo/?path=/root/video&action=play_video&videoid=' + video_id
+    """This function returns the playable URL for the Vimeo embedded video from the video_id retrieved.
+    This is a workaround to avoid the problem found with the Vimeo Add-on running on Gotham. Under Frodo, calling the Vimeo Add-on with the video_id works great."""
+    video_pattern_sd = '"sd":{.*?,"url":"([^"]*?)"'
+    # This URL is borrowed from the Vimeo Add-on made by "The Collective".
+    video_info_url   = 'http://player.vimeo.com/v2/video/%s/config?type=moogaloop&referrer=&player_url=player.vimeo.com&v=1.0.0&cdn_url=http://a.vimeocdn.com' % video_id
+
+    buffer_link = l.carga_web(video_info_url)
+    return l.find_first(buffer_link, video_pattern_sd)
 
 
 def get_playable_youtube_url(video_id):
