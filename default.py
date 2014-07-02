@@ -122,8 +122,7 @@ def main_list(params):
             'studio': video_entry.get('credits') or '',
             'genre': video_entry.get('genre') or '',
             'rating': video_entry.get('rating') or '',
-            'duration': video_entry.get('duration') or 0,
-            'watched': video_entry.get('views') or ''
+            'duration': video_entry.get('duration') or 1
         },
         'path': p.get_plugin_path(url = video_entry['url'], action = 'play_video') if video_entry['IsPlayable'] else p.get_plugin_path(url = video_entry['url'], action = 'main_list', reset_cache = reset_cache),
         'IsPlayable': video_entry['IsPlayable']

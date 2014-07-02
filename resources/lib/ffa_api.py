@@ -20,7 +20,7 @@
    Description:
    These funtions are called from the main plugin module, aimed to ease
    and simplify the add-on development process.
-   Release 0.1.4
+   Release 0.1.5
 '''
 
 import lutil as l
@@ -50,11 +50,16 @@ def get_categories():
 
 def get_videolist(url, localized=lambda x: x):
     """This function gets the video list from the FFA website and returns them in a pretty data format."""
-    entry_pattern = '<div class="t2 m Black">[^<]*?<a id=".*?_LinkName" href="([^"]*?)">([^<]*?)</a>[^<]*?</div>[^<]*?<div style=[^<]*?<a href="[^<]*?<img id=".*?_ImageThumb" src="([^"]*?)" .*?</div>[^<]*?<div class=[^<]*?<span id=".*?_LabelText">(.*?)</span>[^<]*?</div>[^<]*?<div style=[^<]*?(<div id=".*?Creator".*?</div>)'
-    creator_pattern = '<a id=".*?_LCategory" href="[^"]*?">([^<]*?)</a>[^<]*?<span id=".*?_LLength">(.*?) min</span>[^<]*?<span id=".*?_LViewCount">(.*?) views</span>[^<]*?<span id=".*?_LAverageRating">(.*?)</span>[^<]*?<span class="DR"><a id="[^>]*?>([^<]*?)</a></span>'
-    page_count_pattern = '<span id="C_SR_LabelResultsCount[^"]*?">([0-9]*?)-([0-9]*?) of ([0-9]*?) [^<]*?</span>'
-    prev_page_pattern = '<div style="float:left">[^<]*?<a href="([^"]*?)"><img id="C_SR_IPrevious"'
-    next_page_pattern = '<div style="float:right">[^<]*?<a href="([^"]*?)"><img id="C_SR_INext"'
+    video_entry_sep        = '<div class="content-view view-horizontal clearfix">'
+    video_urls_pattern     = '<div class="content-image-wrapper">[^<]*?<a href=\'([^"]*?)\'><img class="[^"]*?" data-original="([^"]*?)"'
+    video_title_pattern    = '<div class="content-name">[^<]*?<a href="[^"]*?">([^<]*?)</a>'
+    video_plot_pattern     = '<div class="content-text">([^<]*?)</div>'
+    video_info_pattern     = '<div class="content-info"><a href="[^"]*?">([^<]*?)</a>([^<]*?)<a href="[^"]*?">([^<]*?)</a></div>'
+    video_duration_pattern = ' ([0-9]*?) min '
+    video_rating_pattern   = ' ([0-9.]*?) stars '
+    page_count_pattern     = '<span id="C_SR_LabelResultsCount[^"]*?">([0-9]*?)-([0-9]*?) of ([0-9]*?) [^<]*?</span>'
+    prev_page_pattern      = '<div style="float:left">[^<]*?<a href="([^"]*?)"><img id="C_SR_IPrevious"'
+    next_page_pattern      = '<div style="float:right">[^<]*?<a href="([^"]*?)"><img id="C_SR_INext"'
 
     buffer_url = l.carga_web(url)
 
@@ -73,15 +78,26 @@ def get_videolist(url, localized=lambda x: x):
         video_list.append(video_entry)
         reset_cache = True
 
-    for url, title, thumb, plot, creator in l.find_multiple(buffer_url, entry_pattern):
-        video_entry = { 'url': root_url + url, 'title': title.strip(), 'thumbnail': root_url + thumb, 'plot': plot.strip(), 'IsPlayable': True }
-        for category, duration, views, rating, author in l.find_multiple(creator, creator_pattern):
-            video_entry['genre'] = category
-            video_entry['duration'] = int(duration)
-            video_entry['views']    = views
-            video_entry['rating']   = rating.replace('unrated', '').replace(' stars', '')
-            video_entry['credits']   = author
-        video_list.append(video_entry)
+    for video_section in buffer_url.split(video_entry_sep):
+        url, thumb = l.find_first(video_section, video_urls_pattern) or ('', '')
+        title = l.find_first(video_section, video_title_pattern)
+        plot  = l.find_first(video_section, video_plot_pattern)
+        category, info, author = l.find_first(video_section, video_info_pattern) or ('', '', '')
+        if category in ('Video', 'Short Film', 'Trailer', 'Documentary', 'Presentation'): # This is to avoid blog posts yielded from Search.
+            duration = l.find_first(info, video_duration_pattern)
+            rating = l.find_first(info, video_rating_pattern)
+            video_entry = { 
+                    'url': root_url + url,
+                    'title': title.strip(),
+                    'thumbnail': root_url + thumb,
+                    'plot': "%s\n%s%s%s" % (plot.strip(), category, info.replace('&middot;', '-'), author),
+                    'duration': int(duration) if duration else 0,
+                    'rating': rating,
+                    'genre': category,
+                    'credits': author,
+                    'IsPlayable': True
+                    }
+            video_list.append(video_entry)
 
     if next_page_num:
         next_page_url = l.find_first(buffer_url, next_page_pattern)
@@ -107,7 +123,7 @@ def get_playable_url(url):
             ('dailymotion1', ' src="[htp:]*?//www.dailymotion.com/embed/video/([^"]*?)"', 'dailymotion'),
             ('dailymotion2', 'www.dailymotion.com%2Fembed%2Fvideo%2F(.*?)%', 'dailymotion'),
             ('archiveorg1', ' src="(https://archive.org/embed/[^"]*?)"', 'archiveorg'),
-            #('snagfilms1', ' src="(http://embed.snagfilms.com/[^"]*?)"', 'snagfilms'),
+            ('snagfilms1', ' src="http://embed.snagfilms.com/embed/player\?filmId=([^"]*?)"', 'snagfilms'),
             ('kickstarter1', ' src="(https://www.kickstarter.com/[^"]*?)"', 'kickstarter'),
             ('tagtele1', ' src="(http://www.tagtele.com/embed/[^"]*?)"', 'tagtele'),
             )
@@ -131,8 +147,7 @@ def get_playable_vimeo_url(video_id):
     """This function returns the playable URL for the Vimeo embedded video from the video_id retrieved.
     This is a workaround to avoid the problem found with the Vimeo Add-on running on Gotham. Under Frodo, calling the Vimeo Add-on with the video_id works great."""
     video_pattern_sd = '"sd":{.*?,"url":"([^"]*?)"'
-    # This URL is borrowed from the Vimeo Add-on made by "The Collective".
-    video_info_url   = 'http://player.vimeo.com/v2/video/%s/config?type=moogaloop&referrer=&player_url=player.vimeo.com&v=1.0.0&cdn_url=http://a.vimeocdn.com' % video_id
+    video_info_url   = 'https://player.vimeo.com/video/' + video_id
 
     buffer_link = l.carga_web(video_info_url)
     return l.find_first(buffer_link, video_pattern_sd)
@@ -162,12 +177,9 @@ def get_playable_archiveorg_url(archive_url):
     return l.find_first(buffer_link, pattern_archive_video)
 
 
-def get_playable_snagfilms_url(snagfilms_url):
-    """This function is not working yet so at this point is never called."""
-    pattern_snagfilms_video = 'src: "(rtmp.+?)"'
-
-    buffer_link = l.carga_web(snagfilms_url)
-    return l.find_first(buffer_link, pattern_snagfilms_video)
+def get_playable_snagfilms_url(video_id):
+    """This function returns the URL path to call the SnagFilms add-on with the video_id retrieved."""
+    return 'plugin://plugin.video.snagfilms/?mode=GV&url=%s' % l.get_url_encoded(video_id)
 
 
 def get_playable_kickstarter_url(kickstarter_url):

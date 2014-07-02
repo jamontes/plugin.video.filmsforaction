@@ -1,6 +1,11 @@
+1.0.0
+- Fixed Vimeo custom scraper due to API change.
+- Modified video list parser due to website changes.
+- Added support for SnagFilms videos thanks to the SnagFilms add-on (credits: t1m) 
+- Updated version number for official repo bump.
 0.1.0
 - Remove the Vimeo add-on dependency due to a problem found running on Gotham.
-- Made custom Vimeo scraper to support the Viemo videos on Gotham.
+- Made custom Vimeo scraper to support the Vimeo videos on Gotham.
 - Added forum thread to addon and README files.
 0.0.9
 - Clean up code and documentation.
