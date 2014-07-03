@@ -71,14 +71,20 @@ class Plugin():
         """This method logs the messages into the main XBMC log file, only if debug option is activated from the add-on settings.
         This method is called from the main add-on module."""
         if self.debug_enable:
-            print "%s" % message
+            try:
+                xbmc.log(msg=message, level=xbmc.LOGNOTICE)
+            except:
+                xbmc.log('%s: log this line is not possible due to encoding string problems' % self.plugin_id, level=xbmc.LOGNOTICE)
 
 
     def _log(self, message):
         """This method logs the messages into the main XBMC log file, only if debug option is activated from the add-on settings.
         This method is privated and only called from other methods within the class."""
         if self.debug_enable:
-            print "plugin.%s" % message
+            try:
+                xbmc.log(msg=message, level=xbmc.LOGNOTICE)
+            except:
+                xbmc.log('%s: _log this line is not possible due to encoding string problems' % self.plugin_id, level=xbmc.LOGNOTICE)
 
 
     def get_plugin_parms(self):

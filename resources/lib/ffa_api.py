@@ -34,7 +34,7 @@ def set_debug(debug_flag):
 
 def get_categories():
     """This function gets the categories list from the FFA website."""
-    catalog_pattern  = '<div class="DarkGray">(.*?)</div>'
+    catalog_pattern  = '<div class="DarkGray clearfix">(.*?)</div>'
     category_pattern = '<a href="([^"]*?)">([^<]*?)</a>'
     category_url = 'http://www.filmsforaction.org/films/'
 
