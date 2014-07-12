@@ -203,11 +203,11 @@ def get_playable_tagtele_url(tagtele_url):
 def get_playable_disclosetv_url(disclose_url):
     """This function returns the playable URL for the Disclose TV  embedded video from the video link retrieved."""
     pattern_disclose_location = 'location.href="(.+?)"'
-    pattern_tagtele_video = '{ url: "(.+?)"'
+    pattern_disclose_video = '{ url: "(.+?)"'
 
     buffer_link = l.carga_web(disclose_url)
     location_link = l.find_first(buffer_link, pattern_disclose_location)
     if location_link:
         location_url = 'http://www.disclose.tv%s1280&height=720&flash=11&url=' % location_link
         buffer_link = l.carga_web(location_url)
-        return l.find_first(buffer_link,  pattern_tagtele_video)
+        return l.find_first(buffer_link, pattern_disclose_video)
