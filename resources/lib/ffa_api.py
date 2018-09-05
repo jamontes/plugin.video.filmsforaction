@@ -99,7 +99,7 @@ def get_videolist(url, cat_menu=""):
                             views,
                             rating,
                             ),
-            'duration'   : int(duration.split()[0]) if duration else 0,
+            'duration'   : int(duration.split()[0]) * 60 if duration else 0,
             'rating'     : rating.split()[0] if rating else '',
             'genre'      : category,
             'IsPlayable' : True
@@ -132,10 +132,8 @@ def get_playable_url(url):
             ('dailymotion1', ' src="[htp:]*?//www.dailymotion.com/embed/video/([0-9a-zA-Z]+)',  'dailymotion'),
             ('dailymotion2', 'www.dailymotion.com%2Fembed%2Fvideo%2F(.*?)%',                    'dailymotion'),
             ('archiveorg1',  ' src="(https://archive.org/embed/[^"]*?)"',                       'archiveorg'),
-            ('snagfilms1',   ' src="http://embed.snagfilms.com/embed/player\?filmId=([^"]*?)"', 'snagfilms'),
             ('kickstarter1', ' src="(https://www.kickstarter.com/[^"]*?)"',                     'kickstarter'),
             ('tagtele1',     ' src="(http://www.tagtele.com/embed/[^"]*?)"',                    'tagtele'),
-            ('disclosetv1',  ' src="http://www.disclose.tv/embed/([^"]*?)"',                    'disclosetv'),
             )
 
     buffer_url = l.carga_web(url)
@@ -165,21 +163,21 @@ def get_playable_vimeo_url(video_id):
     video_info_url   = 'https://player.vimeo.com/video/' + video_id
     buffer_link = l.carga_web(video_info_url)
     video_options  = dict((quality, video) for quality, video in l.find_multiple(buffer_link, video_quality_pattern))
-    l.log("List of video options: "+repr(video_options))
-    for quality in quality_list:
-        if quality in video_options:
-            return video_options.get(quality)
-    else:
-        if len(video_options):
-            # This quality isn't normalized.
-            return video_options.get(video_options.keys()[0])
+    if len(video_options):
+        l.log("List of video options: "+repr(video_options))
+        for quality in quality_list:
+            if quality in video_options:
+                return video_options.get(quality)
+
+        # This quality isn't normalized as it doesn't appear into the quality_list.
+        return video_options.get(video_options.keys()[0])
 
     return ""
 
 
 def get_playable_youtube_url(video_id):
     """This function returns the URL path to call the Youtube add-on with the video_id retrieved."""
-    return 'plugin://plugin.video.youtube/?path=/root/video&action=play_video&videoid=' + video_id
+    return 'plugin://plugin.video.youtube/play/?video_id=' + video_id
 
 
 def get_playable_dailymotion_url(video_id):
@@ -207,11 +205,6 @@ def get_playable_archiveorg_url(archive_url):
     return l.find_first(buffer_link, pattern_archive_video)
 
 
-def get_playable_snagfilms_url(video_id):
-    """This function returns the URL path to call the SnagFilms add-on with the video_id retrieved."""
-    return 'plugin://plugin.video.snagfilms/?mode=GV&url=%s' % l.get_url_encoded(video_id)
-
-
 def get_playable_kickstarter_url(kickstarter_url):
     """This function returns the playable URL for the Kickstarter embedded video from the video link retrieved."""
     pattern_kickstarter_video = ' data-video-url="(.+?)"'
@@ -226,9 +219,4 @@ def get_playable_tagtele_url(tagtele_url):
 
     buffer_link = l.carga_web(tagtele_url)
     return l.find_first(buffer_link, pattern_tagtele_video)
-
-
-def get_playable_disclosetv_url(video_id):
-    """This function returns the URL path to call the Disclose TV add-on with the video_id retrieved."""
-    return 'plugin://plugin.video.disclose_tv/video/' + video_id
 
