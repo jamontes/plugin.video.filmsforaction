@@ -115,12 +115,6 @@ class Plugin():
         return urllib.quote_plus(url)
 
 
-    def set_view_mode(self, viewid):
-        """This method sets the view mode into the video list."""
-        self._log("set_view_mode mode: " + viewid)
-        xbmc.executebuiltin('Container.SetViewMode('+viewid+')')
-
-
     def set_content_list(self, contents="episodes"):
         """This method sets the video contents for the video list."""
         self._log("set_content_list contents: " + contents)
@@ -170,7 +164,7 @@ class Plugin():
     def showWarning(self, message):
         """This method shows a popup window with a notices message through the XBMC GUI during 5 secs."""
         self._log("showWarning message: %s" % message)
-        xbmc.executebuiltin('XBMC.Notification(Info:,' + message + ',6000)')
+        xbmcgui.Dialog().notification('Info:', message, time=6000)
 
 
     def play_resolved_url(self, url = ""):

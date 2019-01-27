@@ -34,7 +34,7 @@ def local_log(message):
     """This function logs the messages into the main KODI log file. Called from the libraries module by other functions."""
 
     if debug_enable:
-        print "%s" % message
+        print("%s" % message)
 
 
 log = local_log # Use local log function by default.

@@ -39,7 +39,7 @@ All in all, through the screenings, public access TV, this website, and our Lend
 To install it simply download the zip file, and then proceed as with any other plugin from XBMC:
  System->Settings->Add-ons->Install from zip file.
 
-Any issues detected can be reported using this forum thread for official support: http://forum.xbmc.org/showthread.php?tid=198524
+Any issues detected can be reported using this forum thread for official support: https://forum.kodi.tv/showthread.php?tid=198524
 
 Enjoy it!
 
