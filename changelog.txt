@@ -1,3 +1,5 @@
+1.1.0 (2019.01.27)
+- Updated add-on for Isengard+ due to missing add-on dependency.
 1.0.10 (2018.09.05)
 - Removed add-on dependencies.
 - Deprecated Gotham release due to missing add-on dependency.
