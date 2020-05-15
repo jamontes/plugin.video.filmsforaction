@@ -23,7 +23,7 @@
    Release 0.1.6
 '''
 
-import lutil as l
+import resources.lib.lutil as l
 
 root_url = 'https://www.filmsforaction.org'
 
@@ -172,7 +172,7 @@ def get_playable_vimeo_url(video_id):
                 return video_options.get(quality)
 
         # This quality isn't normalized as it doesn't appear into the quality_list.
-        return video_options.get(video_options.keys()[0])
+        return video_options.get(list(video_options.keys())[0])
 
     return ""
 

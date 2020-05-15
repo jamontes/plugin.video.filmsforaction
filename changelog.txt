@@ -1,3 +1,5 @@
+1.3.0+matrix.1 (2020.05.07)
+- Code updated for matrix onwards.
 1.1.1 (2020.05.06)
 - Quick fix due to website changes.
 1.1.0 (2019.01.27)

@@ -24,7 +24,9 @@
 '''
 
 # First of all We must import all the libraries used for plugin development.
-import re, urllib, urllib2
+import re, html
+from urllib.parse import urlencode, quote_plus, unquote_plus
+from urllib.request import urlopen, Request
 from datetime import date
 
 debug_enable = False # The debug logs are disabled by default.
@@ -55,20 +57,20 @@ def get_url_decoded(url):
     """This function returns the URL decoded."""
 
     log('get_url_decoded URL: "%s"' % url)
-    return urllib.unquote_plus(url)
+    return unquote_plus(url)
 
 
 def get_url_encoded(url):
     """This function returns the URL encoded."""
 
     log('get_url_encoded URL: "%s"' % url)
-    return urllib.quote_plus(url)
+    return quote_plus(url)
 
 
 def get_parms_encoded(**kwars):
     """This function returns the params encoded to form an URL or data post."""
 
-    param_list = urllib.urlencode(kwars)
+    param_list = urlencode(kwars)
     log('get_parms_encoded params: "%s"' % param_list)
     return param_list
 
@@ -77,11 +79,12 @@ def carga_web(url):
     """This function loads the html code from a webserver and returns it into a string."""
 
     log('carga_web URL: "%s"' % url)
-    MiReq = urllib2.Request(url) # We use the Request method because we need to add a header into the HTTP GET to the web site.
+    MiReq = Request(url) # We use the Request method because we need to add a header into the HTTP GET to the web site.
     # We have to tell the web site we are using a real browser.
     MiReq.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:17.0) Gecko/20100101 Firefox/17.0') # This is a true Firefox header.
-    MiConex = urllib2.urlopen(MiReq) # We open the HTTP connection to the URL.
-    MiHTML = MiConex.read() # We load all the HTML contents from the web page and store it into a var.
+    MiConex = urlopen(MiReq) # We open the HTTP connection to the URL.
+    encoding = MiConex.info().get_param('charset', 'utf8')
+    MiHTML = MiConex.read().decode(encoding, 'ignore') # We load all the HTML contents from the web page and store it into a var.
     MiConex.close() # We close the HTTP connection as we have all the info required.
 
     return MiHTML
@@ -92,14 +95,15 @@ def carga_web_cookies(url, headers=''):
     and returns it into a string along with the cookies collected from the website."""
 
     log('carga_web_cookies URL: "%s"' % url)
-    MiReq = urllib2.Request(url) # We use the Request method because we need to add a header into the HTTP GET to the web site.
+    MiReq = Request(url) # We use the Request method because we need to add a header into the HTTP GET to the web site.
     # We have to tell the web site we are using a real browser.
     MiReq.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:17.0) Gecko/20100101 Firefox/17.0') # This is a true Firefox header.
     for key in headers:
         MiReq.add_header(key, headers[key])
-    MiConex = urllib2.urlopen(MiReq) # We open the HTTP connection to the URL.
-    MiHTML = MiConex.read() # We load all the HTML contents from the web page and store it into a var.
-    server_info = "%s" % MiConex.info()
+    MiConex = urlopen(MiReq) # We open the HTTP connection to the URL.
+    encoding = MiConex.info().get_param('charset', 'utf8')
+    MiHTML = MiConex.read().decode(encoding, 'ignore') # We load all the HTML contents from the web page and store it into a var.
+    server_info = "%s" % MiConex.info().decode(encoding, 'ignore')
     my_cookie_pattern = re.compile('Set-Cookie: ([^;]+);')
     my_cookies = ''
     pcookie = ''
@@ -119,14 +123,15 @@ def send_post_data(url, headers='', data=''):
     and returns the html code into a string along with the cookies collected from the website."""
 
     log('send_post_data URL: "%s"' % url)
-    MiReq = urllib2.Request(url, data) # We use the Request method because we need to send a HTTP POST to the web site.
+    MiReq = Request(url, data) # We use the Request method because we need to send a HTTP POST to the web site.
     # We have to tell the web site we are using a real browser.
     MiReq.add_header('User-Agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:17.0) Gecko/20100101 Firefox/17.0') # This is a true Firefox header.
     for key in headers:
         MiReq.add_header(key, headers[key])
-    MiConex = urllib2.urlopen(MiReq) # We open the HTTP connection to the URL.
-    MiHTML = MiConex.read() # We load all the HTML contents from the web page and store it into a var.
-    server_info = "%s" % MiConex.info()
+    MiConex = urlopen(MiReq) # We open the HTTP connection to the URL.
+    encoding = MiConex.info().get_param('charset', 'utf8')
+    MiHTML = MiConex.read().decode(encoding, 'ignore') # We load all the HTML contents from the web page and store it into a var.
+    server_info = "%s" % MiConex.info().decode(encoding, 'ignore')
     my_cookie_pattern = re.compile('Set-Cookie: ([^;]+);')
     my_cookies = ''
     pcookie = ''
@@ -145,11 +150,11 @@ def get_redirect(url):
     """This function returns the redirected URL from a 30X response received from the webserver."""
 
     log('get_redirect URL: "%s"' % url)
-    MiConex = urllib.urlopen(url) # Opens the http connection to the URL.
+    MiConex = urlopen(url) # Opens the http connection to the URL.
     MiHTML = MiConex.geturl() # Gets the URL redirect link and stores it into MiHTML.
     MiConex.close() # Close the http connection as we get what we need.
 
-    return MiHTML
+    return MiHTML.decode('utf8', 'ignore')
 
 
 def find_multiple(text, pattern):
@@ -176,66 +181,11 @@ def get_this_year():
     return date.today().year
 
 
-def get_clean_title(title):
-    """This function returns the title or desc cleaned.
-       ref: http://www.thesauruslex.com/typo/eng/enghtml.htm"""
+def clean_title(title):
+    """This function cleans all the HTML special chars from the title."""
 
-    return title.\
-        replace('&aacute;',   'á').\
-        replace('&agrave;',   'á').\
-        replace('&eacute;',   'é').\
-        replace('&egrave;',   'è').\
-        replace('&iacute;',   'í').\
-        replace('&oacute;',   'ó').\
-        replace('&ograve;',   'ò').\
-        replace('&uacute;',   'ú').\
-        replace('&auml;',     'ä').\
-        replace('&iuml;',     'ï').\
-        replace('&ouml;',     'ö').\
-        replace('&uuml;',     'ü').\
-        replace('&szlig;',    'ß').\
-        replace('&ntilde;',   'ñ').\
-        replace('&ccedil;',   'ç').\
-        replace('&Aacute;',   'Á').\
-        replace('&Agrave;',   'À').\
-        replace('&Eacute;',   'É').\
-        replace('&Egrave;',   'È').\
-        replace('&Iacute;',   'Í').\
-        replace('&Oacute;',   'Ó').\
-        replace('&Ograve;',   'Ò').\
-        replace('&Uacute;',   'Ú').\
-        replace('&Auml;',     'Ä').\
-        replace('&Iuml;',     'Ï').\
-        replace('&Ouml;',     'Ö').\
-        replace('&Uuml;',     'Ü').\
-        replace('&Ntilde;',   'Ñ').\
-        replace('&Ccedil;',   'Ç').\
-        replace('&#034;',     '"').\
-        replace('&#039;',     "´").\
-        replace('&#160;',     " ").\
-        replace('&#8211;',     '').\
-        replace('&#8217;',    "'").\
-        replace('&#8220;',    '"').\
-        replace('&#8221;',    '"').\
-        replace('&#8223;',    "'").\
-        replace('&#8230;',     '').\
-        replace('&rsquo;',    "´").\
-        replace('&laquo;',    '"').\
-        replace('&raquo;',    '"').\
-        replace('&iexcl;',    '¡').\
-        replace('&iinte;',    '¿').\
-        replace('&amp;',      '&').\
-        replace('&nbsp;',      '').\
-        replace('&quot;',     '"').\
-        replace('&ordf',      'ª').\
-        replace('&ordm',      'º').\
-        replace('&middot;',   '·').\
-        replace('&hellip;', '...').\
-        replace('<br />',      '').\
-        strip()
+    title_clean = re.sub('(<.+?>)', '', title.strip())
+
+    return html.unescape(title_clean)
 
 
-def get_clean_html_tags(html_text):
-    """This function returns the text or desc cleaned from html tags."""
-
-    return re.sub(r'<[^>]*?>', '', html_text, count=0, flags=re.DOTALL)
