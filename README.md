@@ -1,4 +1,4 @@
-Films For Action Videos: KODI video add-on to watch the Films For Action videos from the FFA web site.
+Films For Action: KODI video add-on to watch the Films For Action videos from the FFA web site.
 
    Copyright (C) 2014 Jose Antonio Montes (jamontes)
 
@@ -20,21 +20,12 @@ Initial release 1.0.0
 
 [![Build status](https://ci.appveyor.com/api/projects/status/b6cc9449bhep93aj/branch/master?svg=true)](https://ci.appveyor.com/project/jamontes/plugin-video-filmsforaction/branch/master)
 
-This KODI add-on allows to watch the videos from the Films For Action web site (more than 2500 videos available).
+This KODI add-on allows you to watch videos from the Films For Action website.
 
-<< Films For Action is a community-powered learning library and alternative news center for people who want to change the world.
+<< Films For Action is a video library for people who want to change the world. Watch over 5000 documentaries & videos for free. Sign up via filmsforaction.org to save, rate and submit films. Let's be the media!
 
-At an International Level:
-Films For Action uses the power of film to raise awareness of important social, environmental, and media-related issues not covered by the mainstream news. Our goal is to provide citizens with the information and perspectives essential to creating a more just, sustainable, and democratic society.
-
-At the Local Level:
-On the ground, our City Chapters are working to create alternative media channels that will inform, connect, and inspire action at a community level.
-
-Our city chapters screen documentaries at independent theaters and other venues regularly throughout the year. With most films we launch an accompanying educational and action-oriented campaign to address the issues presented by the films. Some of our chapters air films on their local public Access TV channel. And all the films we buy we make available for people to borrow from us for free, either to watch themselves or to screen in their own neighborhoods.
-
-Our local city chapter sub-sites offer several tools to connect and inform people through our website, including a calendar of local activist events, a directory of local progressive and radical groups, and a blog for writers to contribute local news and perspectives.
-
-All in all, through the screenings, public access TV, this website, and our Lending Library, our City Chapters aim to provide an information and resource network that will reduce its city's dependence on corporate media, providing more meaningful and reliable ways to stay informed on the issues that matter. >>  (citation: https://www.filmsforaction.org/about/)
+Note: Pay-Per-View documentaries and Patron Subscription Films can currently only be watched via the website: filmsforaction.org. All free videos and documentaries can be watched via KODI.
+>>  (citation: https://www.filmsforaction.org/about/)
 
 To install it simply download the zip file, and then proceed as with any other plugin from XBMC:
  System->Settings->Add-ons->Install from zip file.
